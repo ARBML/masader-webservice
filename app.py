@@ -6,7 +6,12 @@ from datasets import DownloadMode, load_dataset
 app = Flask(__name__)
 
 print('Downloading the dataset...')
-masader = load_dataset('arbml/masader')
+masader = list(
+    load_dataset(
+        'arbml/masader',
+        download_mode=DownloadMode.FORCE_REDOWNLOAD,
+    )['train']
+)
 
 
 @app.route('/datasets')
@@ -15,6 +20,11 @@ def datasets():
 
     if random.random() <= 0.1:
         print('Re-downloading the dataset...')
-        masader = load_dataset('arbml/masader', download_mode=DownloadMode.FORCE_REDOWNLOAD)
+        masader = list(
+            load_dataset(
+                'arbml/masader',
+                download_mode=DownloadMode.FORCE_REDOWNLOAD,
+            )['train']
+        )
 
-    return jsonify(list(masader['train']))
+    return jsonify(masader)
