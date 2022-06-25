@@ -1,5 +1,3 @@
-import random
-
 from flask import Flask, jsonify
 from datasets import DownloadMode, load_dataset
 
@@ -24,10 +22,6 @@ masader = load_masader_dataset_as_dict()
 def datasets(index: str):
     global masader
 
-    if random.random() <= 0.1:
-        print('Re-downloading the dataset...')
-        masader = load_masader_dataset_as_dict()
-
     if index:
         index = int(index)
 
@@ -37,3 +31,13 @@ def datasets(index: str):
             return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
     else:
         return jsonify(masader)
+
+
+@app.route('/datasets/refresh')
+def refresh_datasets():
+    global masader
+
+    print('Refreshing the dataset...')
+    masader = load_masader_dataset_as_dict()
+
+    return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
