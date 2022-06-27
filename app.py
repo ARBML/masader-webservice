@@ -22,7 +22,7 @@ def load_masader_dataset_as_dict():
 
 @app.route('/schema')
 def datasets_schema():
-    return jsonify(data.keys())
+    return jsonify(list(data[0].keys()))
 
 @app.route('/datasets', defaults={'index': None})
 @app.route('/datasets/<index>')
@@ -59,7 +59,7 @@ def refresh_datasets():
 
 @app.route('/cluster')
 def cluster_req():
-    return cluster
+    return jsonify(cluster)
 
 
 def get_cluster_data():
@@ -73,7 +73,7 @@ def get_cluster_data():
 
 @app.route('/embeddings')
 def embeddings_req():
-    return embeddings
+    return jsonify(embeddings)
 
 
 def get_embeddings_data(dataset):
@@ -98,7 +98,7 @@ def sentence_transformer_request(d_abstracts):
         if last + 200 < len(d_abstracts):
             last += 200
         else:
-            last += len(d_abstracts) - last
+            last = len(d_abstracts)
 
         response = requests.post(API_URL + "sentence-transformers/all-MiniLM-L6-v2", headers=headers,
                                  json={"inputs": d_abstracts[first:last], "options": {"wait_for_model": True}})
