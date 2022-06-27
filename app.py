@@ -22,7 +22,7 @@ def load_masader_dataset_as_dict():
 
 @app.route('/schema')
 def datasets_schema():
-    return data.keys()
+    return jsonify(data.keys())
 
 @app.route('/datasets', defaults={'index': None})
 @app.route('/datasets/<index>')
