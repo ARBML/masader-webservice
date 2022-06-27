@@ -20,6 +20,10 @@ def load_masader_dataset_as_dict():
     )['train']
 
 
+@app.route('/schema')
+def datasets_schema():
+    return data.keys()
+
 @app.route('/datasets', defaults={'index': None})
 @app.route('/datasets/<index>')
 def datasets(index: str):
