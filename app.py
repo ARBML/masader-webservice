@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request
 
-from utils import dict_filter, load_masader_dataset
+from utils.common_utils import dict_filter
+from utils.dataset_utils import load_masader_dataset
 
 
 app = Flask(__name__)
 
 
-print('Downloading the dataset...')
-masader = load_masader_dataset()
+print('Preparing globals...')
+masader, tags = load_masader_dataset()
 
 
 @app.route('/datasets')
@@ -38,11 +39,20 @@ def get_dataset(index: int):
     return jsonify(dict_filter(masader[index - 1], features))
 
 
-@app.route('/datasets/refresh')
-def refresh_datasets():
-    global masader
+@app.route('/datasets/tags')
+def get_tags():
+    global tags
 
-    print('Refreshing the dataset...')
-    masader = load_masader_dataset()
+    features = request.args.get('features', default='all', type=str).split(',')
+
+    return jsonify(dict_filter(tags, features))
+
+
+@app.route('/refresh')
+def refresh():
+    global masader, tags
+
+    print('Refreshing globals...')
+    masader, tags = load_masader_dataset()
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
