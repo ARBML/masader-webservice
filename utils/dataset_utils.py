@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Set, Tuple, Union
 
 from datasets import Dataset, DownloadMode, load_dataset
 
@@ -17,62 +17,15 @@ def load_masader_dataset() -> Tuple[List[Dict[str, Union[str, int]]], Dict[str, 
 
 
 def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:
-    tags = dict()
+    tags: Dict[str, Union[Set[str], List[Union[str, int]]]] = dict()
 
     for feature in masader.features:
         if feature == 'Subsets':
-            for subsets_feature in SUBSETS_FEATURES:
-                tags[f'Subsets:{subsets_feature}'] = set()
-
-            for subsets in masader['Subsets']:
-                for subset in subsets:
-                    for subsets_feature in SUBSETS_FEATURES:
-                        try:
-                            if subsets_feature == 'Dialect':
-                                tags[f'Subsets:{subsets_feature}'].update(
-                                    list(
-                                        map(
-                                            extract_country_from_dialect_feature,
-                                            subset[subsets_feature].split(','),
-                                        ),
-                                    ),
-                                )
-                            else:
-                                tags[f'Subsets:{subsets_feature}'].add(subset[subsets_feature])
-                        except KeyError:
-                            pass
-
-            for subsets_feature in SUBSETS_FEATURES:
-                tags[f'Subsets:{subsets_feature}'] = sorted(tags[f'Subsets:{subsets_feature}'])
+            tags = process_subsets_feature(tags, masader['Subsets'])
         elif feature == 'Dialect':
-            tags['Dialect'] = set()
-
-            for dialects in masader['Dialect']:
-                tags['Dialect'].update(
-                    list(
-                        multi_map(
-                            dialects.split(','),
-                            extract_country_from_dialect_feature,
-                            str.strip,
-                        ),
-                    ),
-                )
-
-            tags['Dialect'] = sorted(tags['Dialect'])
+            tags = process_dialect_feature(tags, masader['Dialect'])
         elif feature == 'Tasks':
-            tags['Tasks'] = set()
-
-            for tasks in masader['Tasks']:
-                tags['Tasks'].update(
-                    list(
-                        filter(
-                            identity,
-                            map(str.strip, tasks.split(',')),
-                        ),
-                    ),
-                )
-
-            tags['Tasks'] = sorted(tags['Tasks'])
+            tags = process_tasks_feature(tags, masader['Tasks'])
         else:
             tags[feature] = sorted(set(masader[feature]))
 
@@ -94,3 +47,77 @@ def extract_country_from_dialect_feature(dialect_feature: str) -> str:
         return 'MSA'
 
     return country
+
+
+def process_subsets_feature(
+    tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
+    subsets_feature: Dict[str, str],
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
+    for element in SUBSETS_FEATURES:
+        tags[f'Subsets:{element}'] = set()
+
+    for subsets in subsets_feature:
+        for subset in subsets:
+            for element in SUBSETS_FEATURES:
+                try:
+                    if element == 'Dialect':
+                        tags[f'Subsets:{element}'].update(
+                            list(
+                                map(
+                                    extract_country_from_dialect_feature,
+                                    subset[element].split(','),
+                                ),
+                            ),
+                        )
+                    else:
+                        tags[f'Subsets:{element}'].add(subset[element])
+                except KeyError:
+                    pass
+
+    for element in SUBSETS_FEATURES:
+        tags[f'Subsets:{element}'] = sorted(tags[f'Subsets:{element}'])
+
+    return tags
+
+
+def process_dialect_feature(
+    tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
+    dialect_feature: List[str],
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
+    tags['Dialect'] = set()
+
+    for dialects in dialect_feature:
+        tags['Dialect'].update(
+            list(
+                multi_map(
+                    dialects.split(','),
+                    extract_country_from_dialect_feature,
+                    str.strip,
+                ),
+            ),
+        )
+
+    tags['Dialect'] = sorted(tags['Dialect'])
+
+    return tags
+
+
+def process_tasks_feature(
+    tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
+    tasks_feature: List[str],
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
+    tags['Tasks'] = set()
+
+    for tasks in tasks_feature:
+        tags['Tasks'].update(
+            list(
+                filter(
+                    identity,
+                    map(str.strip, tasks.split(',')),
+                ),
+            ),
+        )
+
+    tags['Tasks'] = sorted(tags['Tasks'])
+
+    return tags
