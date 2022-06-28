@@ -52,7 +52,7 @@ def extract_country_from_dialect_feature(dialect_feature: str) -> str:
 def process_subsets_feature(
     tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
     subsets_feature: Dict[str, str],
-) -> Dict[str, List[Union[str, int]]]:
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
     for element in SUBSETS_FEATURES:
         tags[f'Subsets:{element}'] = set()
 
@@ -83,7 +83,7 @@ def process_subsets_feature(
 def process_dialect_feature(
     tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
     dialect_feature: List[str],
-) -> Dict[str, List[Union[str, int]]]:
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
     tags['Dialect'] = set()
 
     for dialects in dialect_feature:
@@ -105,7 +105,7 @@ def process_dialect_feature(
 def process_tasks_feature(
     tags: Dict[str, Union[Set[str], List[Union[str, int]]]],
     tasks_feature: List[str],
-) -> Dict[str, List[Union[str, int]]]:
+) -> Dict[str, Union[Set[str], List[Union[str, int]]]]:
     tags['Tasks'] = set()
 
     for tasks in tasks_feature:
