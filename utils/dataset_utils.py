@@ -16,7 +16,7 @@ def load_masader_dataset() -> Tuple[List[Dict[str, Union[str, int]]], Dict[str, 
 
 
 def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:
-    tags = dict()
+    tags: Dict[str, List[Union[str, int]]] = dict()
 
     for feature in masader.features:
         if feature == 'Subsets':
@@ -35,5 +35,11 @@ def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:
                 tags[f'Subsets:{subsets_feature}'] = sorted(tags[f'Subsets:{subsets_feature}'])
         else:
             tags[feature] = sorted(set(masader[feature]))
+
+    for feature in tags:
+        try:
+            tags[feature].remove('nan')
+        except ValueError:
+            pass
 
     return tags
