@@ -1,16 +1,25 @@
+import redis
+
 from flask import Flask, jsonify, request
-from utils.common_utils import dict_filter
-from utils.dataset_utils import load_masader_dataset
-from utils.clusters_utils import get_cluster_data
-from utils.embeddings_utils import get_embeddings_data
 from flask_cors import CORS
 
+from utils.common_utils import dict_filter
+from utils.dataset_utils import load_masader_dataset
+from utils.embeddings_utils import get_masader_embeddings
+from utils.clusters_utils import get_masader_clusters
+
+
 app = Flask(__name__)
+app.config.from_object('config.Config')
 CORS(app)
 
+db = redis.from_url(app.config['REDIS_URL'])
 
-@app.route('/schema')
+
+@app.route('/datasets/schema')
 def datasets_schema():
+    global masader
+
     return jsonify(list(masader[0].keys()))
 
 
@@ -42,7 +51,6 @@ def get_dataset(index: int):
     return jsonify(dict_filter(masader[index - 1], features))
 
 
-
 @app.route('/datasets/tags')
 def get_tags():
     global tags
@@ -52,29 +60,37 @@ def get_tags():
     return jsonify(dict_filter(tags, features))
 
 
+@app.route('/datasets/embeddings')
+def get_embeddings():
+    global embeddings
+
+    return jsonify(embeddings)
+
+
+@app.route('/datasets/clusters')
+def get_clusters():
+    global clusters
+
+    return jsonify(clusters)
+
+
 @app.route('/refresh')
 def refresh():
-    global masader, tags
+    global masader, tags, embeddings, clusters
 
     print('Refreshing globals...')
     masader, tags = load_masader_dataset()
+    embeddings = get_masader_embeddings(masader, db)
+    clusters = get_masader_clusters(embeddings)
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
 
-@app.route('/cluster')
-def cluster_req():
-    return jsonify(cluster)
+masader = None
+tags = None
+embeddings = None
+clusters = None
 
 
-@app.route('/embeddings')
-def embeddings_req():
-    return jsonify(embeddings)
-
-# ------------------------
-
-print('Downloading the dataset, embeddings, and clusters...')
-
-masader, tags = load_masader_dataset()
-embeddings, tsne_data = get_embeddings_data(masader)
-cluster = get_cluster_data(tsne_data)
+with app.app_context():
+    refresh()

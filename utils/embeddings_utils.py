@@ -1,50 +1,55 @@
-from sklearn.manifold import TSNE
-from utils.hp_request_util import hf_request
-import pandas as pd
+import json
+
+from typing import Dict, List, Tuple, Union
+
+from redis import Redis
+from flask import current_app as app
+
+from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE
+
+from utils.hf_utils import request_hf_model
 
 
-def get_embeddings_data(dataset):
+def get_masader_embeddings(masader: List[Dict[str, Union[str, int]]], db: Redis) -> List[List[float]]:
+    cached_embedding, new_prompts = get_cached_embeddings_and_new_prompts(masader, db)
+    new_prompts_embeddings = compute_embeddings(list(new_prompts.values()), HF_EMBEDDINGS_MODEL)
 
-    desc = [i['Description'] if i['Description'] != 'nan' else '' for i in dataset]
-    tasks = [i['Tasks'] if i['Tasks'] != 'nan' else '' for i in dataset]
-    abstracts = [i['Abstract'] if i['Abstract'] != 'nan' else '' for i in dataset]
+    for (index, new_prompt), new_prompt_embeddings in zip(new_prompts.items(), new_prompts_embeddings):
+        db.set(new_prompt, json.dumps(new_prompt_embeddings))
+        cached_embedding[index] = new_prompt_embeddings
 
-    full = [' '.join(tpl) for tpl in list(zip(*[desc, tasks, abstracts]))]
-
-    return embeddings_data(sentence_transformer_request(full))
+    return list(zip(*sorted(cached_embedding.items(), key=lambda element: element[0])))[1]
 
 
-def sentence_transformer_request(d_abstracts):
-    requested_data = None
-    first = 0
-    last = 0
+def get_cached_embeddings_and_new_prompts(
+    masader: List[Dict[str, Union[str, int]]],
+    db: Redis,
+) -> Tuple[Dict[int, List[float]], Dict[int, str]]:
+    cached_embeddings = dict()
+    new_prompts = dict()
 
-    print(len(d_abstracts))
+    for index, dataset in enumerate(masader):
+        dataset_prompt = build_dataset_prompt(dataset)
 
-    while last < len(d_abstracts):
+        dataset_cached_embeddings = db.get(dataset_prompt)
 
-        if last + 200 < len(d_abstracts):
-            last += 200
+        if dataset_cached_embeddings:
+            cached_embeddings[index] = json.loads(dataset_cached_embeddings)
         else:
-            last += len(d_abstracts) - last
+            new_prompts[index] = dataset_prompt
+
+    return cached_embeddings, new_prompts
 
 
-        response = hf_request('sentence-transformers/all-MiniLM-L6-v2', d_abstracts[first:last])
+def compute_embeddings(texts: List[str], model_name: str) -> List[List[float]]:
+    embeddings = list()
 
-        first = last
+    for i in range(0, len(texts), HF_REQUEST_BATCH_SIZE):
+        response = request_hf_model(model_name, texts[i : i + HF_REQUEST_BATCH_SIZE], app.config['HF_SECRET_KEY'])
+        embeddings.extend(response.json())
 
-        if requested_data is None:
-            requested_data = response.json()
-        else:
-            requested_data += response.json()
-
-    return pd.DataFrame(requested_data)
+    return embeddings
 
 
-def embeddings_data(abstract_embeddings):
-
-    model = TSNE(n_components=2, random_state=0)
-    tsne_data = model.fit_transform(abstract_embeddings)
-
-    return pd.DataFrame(tsne_data - tsne_data.min()).to_json(), tsne_data
-
+def build_dataset_prompt(dataset: Dict[str, Union[str, int]]) -> str:
+    return f"{dataset['Description']} {dataset['Tasks']} {dataset['Abstract']}"
