@@ -46,5 +46,5 @@ def embeddings_data(abstract_embeddings):
     model = TSNE(n_components=2, random_state=0)
     tsne_data = model.fit_transform(abstract_embeddings)
 
-    return pd.DataFrame(tsne_data - tsne_data.min()).to_json(), tsne_data
+    return pd.DataFrame(tsne_data - tsne_data.min()).to_json(orient='split'), tsne_data
 
