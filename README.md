@@ -19,7 +19,8 @@ Entry:
 
 Returns the entry with the specific index from the dataset.
 
-### /datasets/refresh
+
+### /refresh
 Entry: None
 
 This point refresh the dataset.

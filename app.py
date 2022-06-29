@@ -3,22 +3,15 @@ from utils.common_utils import dict_filter
 from utils.dataset_utils import load_masader_dataset
 from utils.clusters_utils import get_cluster_data
 from utils.embeddings_utils import get_embeddings_data
-
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/schema')
 def datasets_schema():
     return jsonify(list(masader[0].keys()))
-
-@app.route('/datasets/tags')
-def get_tags():
-    global tags
-
-    features = request.args.get('features', default='all', type=str).split(',')
-
-    return jsonify(dict_filter(tags, features))
 
 
 @app.route('/datasets')
@@ -47,6 +40,16 @@ def get_dataset(index: int):
         return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
 
     return jsonify(dict_filter(masader[index - 1], features))
+
+
+
+@app.route('/datasets/tags')
+def get_tags():
+    global tags
+
+    features = request.args.get('features', default='all', type=str).split(',')
+
+    return jsonify(dict_filter(tags, features))
 
 
 @app.route('/refresh')
