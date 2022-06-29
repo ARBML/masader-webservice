@@ -35,6 +35,7 @@ Returns the embeddings of the complete dataset. This endpoint returns a list of 
 
 ### /cluster
 
+Entry: None
+
 Returns the cluster of the complete dataset.
 
-Entry: None
