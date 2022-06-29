@@ -1,16 +1,17 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS
-
 from utils.common_utils import dict_filter
 from utils.dataset_utils import load_masader_dataset
-
+from utils.clusters_utils import get_cluster_data
+from utils.embeddings_utils import get_embeddings_data
+from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
 
-print('Preparing globals...')
-masader, tags = load_masader_dataset()
+@app.route('/schema')
+def datasets_schema():
+    return jsonify(list(masader[0].keys()))
 
 
 @app.route('/datasets')
@@ -41,6 +42,7 @@ def get_dataset(index: int):
     return jsonify(dict_filter(masader[index - 1], features))
 
 
+
 @app.route('/datasets/tags')
 def get_tags():
     global tags
@@ -58,3 +60,21 @@ def refresh():
     masader, tags = load_masader_dataset()
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
+
+
+@app.route('/cluster')
+def cluster_req():
+    return jsonify(cluster)
+
+
+@app.route('/embeddings')
+def embeddings_req():
+    return jsonify(embeddings)
+
+# ------------------------
+
+print('Downloading the dataset, embeddings, and clusters...')
+
+masader, tags = load_masader_dataset()
+embeddings, tsne_data = get_embeddings_data(masader)
+cluster = get_cluster_data(tsne_data)

@@ -19,6 +19,7 @@ Entry:
 
 Returns the entry with the specific index from the dataset.
 
+
 ### /refresh
 Entry: None
 
