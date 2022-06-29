@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import load_masader_dataset
 
 
 app = Flask(__name__)
+CORS(app)
 
 
 print('Preparing globals...')
