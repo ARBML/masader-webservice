@@ -11,7 +11,7 @@ def get_masader_clusters(embeddings: List[List[float]]) -> List[int]:
 
 
 def compute_clusters(embeddings: List[List[float]]) -> List[int]:
-    clustering = KMeans(n_clusters=15).fit(embeddings)
+    clustering = KMeans(n_clusters=15, random_state=42).fit(embeddings)
 
     return clustering.labels_.tolist()
 

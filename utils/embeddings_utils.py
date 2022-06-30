@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 from redis import Redis
 from flask import current_app as app
 
-from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE, HF_PIPELINE_FEATURE_EXTRACTION
+from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE, HF_FEATURE_EXTRACTION_TASK
 
 from utils.hf_utils import request_hf_model
 
@@ -45,7 +45,13 @@ def compute_embeddings(texts: List[str], model_name: str) -> List[List[float]]:
     embeddings = list()
 
     for i in range(0, len(texts), HF_REQUEST_BATCH_SIZE):
-        response = request_hf_model(model_name, HF_PIPELINE_FEATURE_EXTRACTION, texts[i : i + HF_REQUEST_BATCH_SIZE], app.config['HF_SECRET_KEY'])
+        response = request_hf_model(
+            model_name,
+            HF_FEATURE_EXTRACTION_TASK,
+            texts[i : i + HF_REQUEST_BATCH_SIZE],
+            app.config['HF_SECRET_KEY'],
+        )
+
         embeddings.extend(response.json())
 
     return embeddings
