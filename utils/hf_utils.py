@@ -2,13 +2,12 @@ from typing import List
 
 import requests
 
+from constants import HF_API_URL
 
-API_URL = 'https://api-inference.huggingface.co/pipeline/feature-extraction/'
 
-
-def request_hf_model(model_name: str, data: List[str], hf_secret_key: str) -> requests.Response:
+def request_hf_model(model_name: str, modelURL: str, data: List[str], hf_secret_key: str) -> requests.Response:
     return requests.post(
-        f'{API_URL}{model_name}',
+        f'{HF_API_URL}{model_name}{modelURL}',
         headers={'Authorization': f'Bearer {hf_secret_key}'},
         json={
             'inputs': data,
