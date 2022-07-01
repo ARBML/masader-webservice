@@ -1,20 +1,33 @@
 from typing import Dict, List, Set, Tuple, Union
 
+from redis import Redis
 from datasets import Dataset, DownloadMode, load_dataset
 
 from constants import SUBSETS_FEATURES
 
 from utils.common_utils import identity, multi_map
+from utils.embeddings_utils import get_masader_embeddings
+from utils.clusters_utils import get_masader_clusters
 
 
-def load_masader_dataset() -> Tuple[List[Dict[str, Union[str, int]]], Dict[str, List[Union[str, int]]]]:
+def load_masader_dataset(db: Redis) -> Tuple[List[Dict[str, Union[str, int]]], Dict[str, List[Union[str, int]]]]:
     masader = load_dataset(
         'arbml/masader',
         download_mode=DownloadMode.FORCE_REDOWNLOAD,
         ignore_verifications=True,
     )['train']
 
-    return list(masader), get_features_tags(masader)
+    tags = get_features_tags(masader)
+    masader = list(masader)
+
+    embeddings = get_masader_embeddings(masader, db)
+    clusters, reduced_embeddings = get_masader_clusters(embeddings)
+
+    for dataset, dataset_cluster, dataset_reduced_embeddings in zip(masader, clusters, reduced_embeddings):
+        dataset['Cluster'] = dataset_cluster
+        dataset['Embeddings'] = dataset_reduced_embeddings
+
+    return masader, tags
 
 
 def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:

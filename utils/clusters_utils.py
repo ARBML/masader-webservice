@@ -1,13 +1,13 @@
-from typing import List
+from typing import List, Tuple
 
 from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
 
 
-def get_masader_clusters(embeddings: List[List[float]]) -> List[int]:
+def get_masader_clusters(embeddings: List[List[float]]) -> Tuple[List[int], List[List[float]]]:
     reduced_embeddings = compute_reduced_embeddings(embeddings)
 
-    return compute_clusters(reduced_embeddings)
+    return compute_clusters(reduced_embeddings), reduced_embeddings
 
 
 def compute_clusters(embeddings: List[List[float]]) -> List[int]:

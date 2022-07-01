@@ -20,16 +20,6 @@ Returns the entry with the specific index from the dataset.
 
 ### /datasets/tags
 
-### /datasets/embeddings
-
-Entry: None
-Returns the embeddings of the complete dataset. This endpoint returns a list of lists, in which the inner lists are 383-element list.
-
-### /datasets/clusters
-
-Entry: None
-Returns the cluster of the complete dataset.
-
 ### /refresh
 
 Entry: None

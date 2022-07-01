@@ -5,8 +5,6 @@ from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import load_masader_dataset
-from utils.embeddings_utils import get_masader_embeddings
-from utils.clusters_utils import get_masader_clusters
 
 
 app = Flask(__name__)
@@ -60,36 +58,18 @@ def get_tags():
     return jsonify(dict_filter(tags, features))
 
 
-@app.route('/datasets/embeddings')
-def get_embeddings():
-    global embeddings
-
-    return jsonify(embeddings)
-
-
-@app.route('/datasets/clusters')
-def get_clusters():
-    global clusters
-
-    return jsonify(clusters)
-
-
 @app.route('/refresh')
 def refresh():
-    global masader, tags, embeddings, clusters
+    global db, masader, tags
 
     print('Refreshing globals...')
-    masader, tags = load_masader_dataset()
-    embeddings = get_masader_embeddings(masader, db)
-    clusters = get_masader_clusters(embeddings)
+    masader, tags = load_masader_dataset(db)
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
 
 masader = None
 tags = None
-embeddings = None
-clusters = None
 
 
 with app.app_context():
