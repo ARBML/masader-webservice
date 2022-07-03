@@ -1,4 +1,6 @@
-from typing import Dict, List, Set, Tuple, Union
+import json
+
+from typing import Dict, List, Set, Union
 
 from redis import Redis
 from datasets import Dataset, DownloadMode, load_dataset
@@ -10,7 +12,7 @@ from utils.embeddings_utils import get_masader_embeddings
 from utils.clusters_utils import get_masader_clusters
 
 
-def load_masader_dataset(db: Redis) -> Tuple[List[Dict[str, Union[str, int]]], Dict[str, List[Union[str, int]]]]:
+def refresh_masader_and_tags(db: Redis) -> None:
     masader = load_dataset(
         'arbml/masader',
         download_mode=DownloadMode.FORCE_REDOWNLOAD,
@@ -27,7 +29,8 @@ def load_masader_dataset(db: Redis) -> Tuple[List[Dict[str, Union[str, int]]], D
         dataset['Cluster'] = dataset_cluster
         dataset['Embeddings'] = dataset_reduced_embeddings
 
-    return masader, tags
+    db.set('masader', json.dumps(masader))
+    db.set('tags', json.dumps(tags))
 
 
 def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:

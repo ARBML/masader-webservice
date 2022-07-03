@@ -1,17 +1,25 @@
+import json
+
+from multiprocessing import Process
+from typing import Dict, List, Optional, Union
+
 import redis
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from utils.common_utils import dict_filter
-from utils.dataset_utils import load_masader_dataset
+from utils.dataset_utils import refresh_masader_and_tags
 
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
 CORS(app)
 
+
 db = redis.from_url(app.config['REDIS_URL'])
+masader: Optional[List[Dict[str, Union[str, int]]]] = None
+tags: Dict[str, List[Union[str, int]]] = None
 
 
 @app.route('/datasets/schema')
@@ -63,13 +71,13 @@ def refresh():
     global db, masader, tags
 
     print('Refreshing globals...')
-    masader, tags = load_masader_dataset(db)
+
+    Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
+
+    masader = json.loads(db.get('masader'))
+    tags = json.loads(db.get('tags'))
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
-
-
-masader = None
-tags = None
 
 
 with app.app_context():
