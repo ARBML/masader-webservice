@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 from redis import Redis
 from flask import current_app as app
 
-from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE, HF_FEATURE_EXTRACTION_TASK
+from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE, HF_FEATURE_EXTRACTION_TASK, SEVEN_DAYS_IN_SECONDS
 
 from utils.hf_utils import request_hf_model
 
@@ -15,7 +15,7 @@ def get_masader_embeddings(masader: List[Dict[str, Union[str, int]]], db: Redis)
     new_prompts_embeddings = compute_embeddings(list(new_prompts.values()), HF_EMBEDDINGS_MODEL)
 
     for (index, new_prompt), new_prompt_embeddings in zip(new_prompts.items(), new_prompts_embeddings):
-        db.set(new_prompt, json.dumps(new_prompt_embeddings))
+        db.set(new_prompt, json.dumps(new_prompt_embeddings), ex=SEVEN_DAYS_IN_SECONDS)
         cached_embedding[index] = new_prompt_embeddings
 
     return list(zip(*sorted(cached_embedding.items(), key=lambda element: element[0])))[1]
@@ -28,11 +28,15 @@ def get_cached_embeddings_and_new_prompts(
     cached_embeddings = dict()
     new_prompts = dict()
 
-    for index, dataset in enumerate(masader):
-        dataset_prompt = build_dataset_prompt(dataset)
+    masader_prompts = list(map(build_dataset_prompt, masader))
+    masader_cached_embeddings = db.mget(masader_prompts)
 
-        dataset_cached_embeddings = db.get(dataset_prompt)
-
+    for index, (dataset_prompt, dataset_cached_embeddings) in enumerate(
+        zip(
+            masader_prompts,
+            masader_cached_embeddings,
+        ),
+    ):
         if dataset_cached_embeddings:
             cached_embeddings[index] = json.loads(dataset_cached_embeddings)
         else:
