@@ -10,6 +10,7 @@ from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
+from utils.github_utils import report_issue
 
 
 app = Flask(__name__)
@@ -79,6 +80,16 @@ def refresh():
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
+@app.route('/cards/issue/<int:index>')
+def report_card_issue(index: int):
+
+    if not (1 <= index <= len(masader)):
+        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
+
+    title = request.args.get('title', default="", type=str)
+    message = request.args.get('message', default="", type=str)
+
+    report_issue(title, message);
 
 with app.app_context():
     refresh()
