@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
-from sklearn.manifold import TSNE
 from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
 
 
 def get_masader_clusters(embeddings: List[List[float]]) -> Tuple[List[int], List[List[float]]]:

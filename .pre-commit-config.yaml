@@ -1,0 +1,56 @@
+---
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v3.2.0
+      hooks:
+          - id: trailing-whitespace
+            exclude: data
+          - id: end-of-file-fixer
+            exclude: data
+          - id: check-yaml
+          # - id: check-builtin-literals
+          - id: check-added-large-files
+          - id: check-ast
+          - id: check-json
+          - id: check-case-conflict
+          - id: check-docstring-first
+          - id: check-merge-conflict
+          - id: check-toml
+          - id: requirements-txt-fixer
+
+    - repo: https://github.com/psf/black
+      rev: 22.3.0
+      hooks:
+          - id: black
+            additional_dependencies: [click==8.0.4]
+            exclude: output|data
+            args: [--skip-string-normalization, --line-length=120]
+
+    - repo: https://github.com/PyCQA/isort
+      rev: 5.10.1
+      hooks:
+          - id: isort
+            exclude: output|data
+        # args: ["--profile", "black"]
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 0.2.1 # or other specific tag
+      hooks:
+          - id: yamlfmt
+
+  # - repo: local
+  #   hooks:
+  #     - id: pylint
+  #       name: pylint
+  #       entry: pylint
+  #       language: system
+  #       types: [python]
+  #       args:
+  #         [
+  #           "-rn", # Only display messages
+  #           # "-sn", # Don't display the score
+  #           # "--rcfile=pylintrc", # Link to your config file
+  #           # "--load-plugins=pylint.extensions.docparams", # Load an extension
+  #         ]

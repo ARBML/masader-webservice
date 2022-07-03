@@ -2,10 +2,10 @@ import json
 
 from typing import Dict, List, Tuple, Union
 
-from redis import Redis
 from flask import current_app as app
+from redis import Redis
 
-from constants import HF_EMBEDDINGS_MODEL, HF_REQUEST_BATCH_SIZE, HF_FEATURE_EXTRACTION_TASK, SEVEN_DAYS_IN_SECONDS
+from constants import HF_EMBEDDINGS_MODEL, HF_FEATURE_EXTRACTION_TASK, HF_REQUEST_BATCH_SIZE, SEVEN_DAYS_IN_SECONDS
 
 from utils.hf_utils import request_hf_model
 

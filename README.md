@@ -1,6 +1,6 @@
 # masader-webservice
 
-## Endpoints 
+## Endpoints
 
 ### /datasets/schema
 

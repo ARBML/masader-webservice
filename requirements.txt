@@ -1,5 +1,5 @@
-Flask==2.1.2
 datasets==2.3.2
+Flask==2.1.2
 flask_cors==3.0.10
 gunicorn==20.1.0
 redis==4.3.4
