@@ -80,13 +80,13 @@ def refresh():
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
-@app.route('/datasets/<int:index>/issue')
+@app.route('/datasets/<int:index>/issues')
 def report_card_issue(index: int):
     if not (1 <= index <= len(masader)):
         return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
 
-    title = request.get_json()['title']
-    message = request.get_json()['message']
+    title = request.get_json().get('title', '')
+    message = request.get_json().get('message', '')
 
     return jsonify(report_issue(title, message));
 
