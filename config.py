@@ -6,5 +6,4 @@ class Config:
 
     HF_SECRET_KEY = environ.get('HF_SECRET_KEY')
 
-    GITHUB_USRNAME = environ.get('GH_USERNAME')
-    GITHUB_PASSWORD = environ.get('GH_PASSWORD')
+    GH_ACCESS_TOKEN = environ.get('GH_ACCESS_TOKEN')
