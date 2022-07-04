@@ -88,7 +88,7 @@ def report_card_issue(index: int):
     title = request.get_json().get('title', '')
     message = request.get_json().get('message', '')
 
-    return jsonify(report_issue(title, message));
+    return jsonify(report_issue(title, message))
 
 with app.app_context():
     refresh()
