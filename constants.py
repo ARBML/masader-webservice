@@ -9,3 +9,5 @@ HF_FEATURE_EXTRACTION_TASK = 'feature-extraction'
 HF_EMBEDDINGS_MODEL = 'sentence-transformers/all-MiniLM-L6-v2'
 
 SEVEN_DAYS_IN_SECONDS = 604800
+
+MASADER_GH_REPO = 'ARBML/masader'
