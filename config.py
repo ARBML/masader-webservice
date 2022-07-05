@@ -6,4 +6,4 @@ class Config:
 
     HF_SECRET_KEY = environ.get('HF_SECRET_KEY')
 
-    GH_ACCESS_TOKEN = environ.get('GH_ACCESS_TOKEN')
+    GH_SECRET_KEY = environ.get('GH_SECRET_KEY')

@@ -11,7 +11,7 @@ from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
-from utils.gh_utils import report_issue
+from utils.gh_utils import create_issue
 
 
 app = Flask(__name__)
@@ -77,6 +77,17 @@ def get_tags():
     return jsonify(dict_filter(tags, features))
 
 
+@app.route('/datasets/<int:index>/issues', methods=['POST'])
+def create_dataset_issue(index: int):
+    if not (1 <= index <= len(masader)):
+        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
+
+    title = request.get_json().get('title', '')
+    body = request.get_json().get('body', '')
+
+    return jsonify({'issue_url': create_issue(f"{masader[index]['Name']}: {title}", body)})
+
+
 @app.route('/refresh')
 def refresh():
     global db, masader, tags
@@ -89,17 +100,6 @@ def refresh():
     tags = json.loads(db.get('tags'))
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
-
-
-@app.route('/datasets/<int:index>/issues', methods=['POST'])
-def report_card_issue(index: int):
-    if not (1 <= index <= len(masader)):
-        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
-
-    title = request.get_json().get('title', '')
-    message = request.get_json().get('message', '')
-
-    return jsonify(report_issue(title, message))
 
 
 with app.app_context():
