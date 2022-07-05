@@ -80,6 +80,7 @@ def refresh():
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
+
 @app.route('/datasets/<int:index>/issues')
 def report_card_issue(index: int):
     if not (1 <= index <= len(masader)):
@@ -89,6 +90,7 @@ def report_card_issue(index: int):
     message = request.get_json().get('message', '')
 
     return jsonify(report_issue(title, message))
+
 
 with app.app_context():
     refresh()
