@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
-from utils.github_utils import report_issue
+from utils.gh_utils import report_issue
 
 
 app = Flask(__name__)
