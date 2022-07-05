@@ -1,8 +1,7 @@
 import requests
 
 from flask import current_app as app
-from github import Github
-from github import Issue
+from github import Github, Issue
 
 from constants import MASADER_GH_REPO
 
