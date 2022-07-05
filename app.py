@@ -3,6 +3,7 @@ import json
 from multiprocessing import Process
 from typing import Dict, List, Optional, Union
 
+import pandas as pd
 import redis
 
 from flask import Flask, jsonify, request
@@ -35,21 +36,30 @@ def get_datasets():
 
     page = request.args.get('page', default=1, type=int)
     size = request.args.get('size', default=len(masader), type=int)
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
+    query = request.args.get('query', default='', type=str)
 
     masader_page = masader[(page - 1) * size : page * size]
 
     if not masader_page:
         return jsonify('Page not found.'), 404
 
-    return jsonify(list(map(lambda element: dict_filter(element, features), masader_page)))
+    masader_page = pd.DataFrame(masader_page)
+
+    if query:
+        masader_page = masader_page.query(query)
+
+    if features:
+        masader_page = masader_page[features]
+
+    return jsonify(masader_page.to_dict('records'))
 
 
 @app.route('/datasets/<int:index>')
 def get_dataset(index: int):
     global masader
 
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
     if not (1 <= index <= len(masader)):
         return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
@@ -61,7 +71,7 @@ def get_dataset(index: int):
 def get_tags():
     global tags
 
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
     return jsonify(dict_filter(tags, features))
 
