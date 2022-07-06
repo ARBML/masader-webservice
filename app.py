@@ -3,6 +3,7 @@ import json
 from multiprocessing import Process
 from typing import Dict, List, Optional, Union
 
+import pandas as pd
 import redis
 
 from flask import Flask, jsonify, request
@@ -10,7 +11,12 @@ from flask_cors import CORS
 
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
+
 from constants import REFRESH_PASSWORD
+
+from utils.gh_utils import create_issue
+
+
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -35,21 +41,30 @@ def get_datasets():
 
     page = request.args.get('page', default=1, type=int)
     size = request.args.get('size', default=len(masader), type=int)
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
+    query = request.args.get('query', default='', type=str)
 
     masader_page = masader[(page - 1) * size : page * size]
 
     if not masader_page:
         return jsonify('Page not found.'), 404
 
-    return jsonify(list(map(lambda element: dict_filter(element, features), masader_page)))
+    masader_page = pd.DataFrame(masader_page)
+
+    if query:
+        masader_page = masader_page.query(query)
+
+    if features:
+        masader_page = masader_page[features]
+
+    return jsonify(masader_page.to_dict('records'))
 
 
 @app.route('/datasets/<int:index>')
 def get_dataset(index: int):
     global masader
 
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
     if not (1 <= index <= len(masader)):
         return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
@@ -61,9 +76,21 @@ def get_dataset(index: int):
 def get_tags():
     global tags
 
-    features = request.args.get('features', default='all', type=str).split(',')
+    features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
     return jsonify(dict_filter(tags, features))
+
+
+
+@app.route('/datasets/<int:index>/issues', methods=['POST'])
+def create_dataset_issue(index: int):
+    if not (1 <= index <= len(masader)):
+        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
+
+    title = request.get_json().get('title', '')
+    body = request.get_json().get('body', '')
+
+    return jsonify({'issue_url': create_issue(f"{masader[index]['Name']}: {title}", body)})
 
 
 @app.route('/refresh/<int:password>')
@@ -77,11 +104,17 @@ def refresh(password: int):
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
-    masader = json.loads(db.get('masader'))
-    tags = json.loads(db.get('tags'))
+    if db.exists('masader') and db.exists('tags'):
+        masader = json.loads(db.get('masader'))
+        tags = json.loads(db.get('tags'))
+    else:
+        masader = []
+        tags = {}
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
 
 with app.app_context():
+
     refresh(REFRESH_PASSWORD)
+
