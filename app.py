@@ -96,11 +96,16 @@ def refresh():
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
-    masader = json.loads(db.get('masader'))
-    tags = json.loads(db.get('tags'))
+    if db.exists('masader') and db.exists('tags'):
+        masader = json.loads(db.get('masader'))
+        tags = json.loads(db.get('tags'))
+    else:
+        masader = []
+        tags = {}
 
     return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
 
 
 with app.app_context():
+    refresh()
     refresh()
