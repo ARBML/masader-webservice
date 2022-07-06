@@ -46,24 +46,79 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 
 ### /datasets/schema
 
-Entry: None
-Returns the structure of the dataset in JSON format. The returned data is a list that descibe the columns of the dataset.
+- Method: `GET`
+- Description: Returns the list of available features for the datasets.
+- Path Arguments: N/A
+- Parameters: N/A
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/datasets/schema
+- Example Output:
+
+```json
+["Name", "Subsets", "HF Link", "Link", "License", "Year", ...]
+```
 
 ### /datasets
 
-Entry: None
-Returns the complete dataset in JSON format. The returned data is a list of lists. Each item on the list is an entry on the dataset that contains all the existing information.
+- Method: `GET`
+- Description: 
+- Path Arguments: N/A
+- Parameters: 
+- Return Type: `JSON`
+- Example Link: [https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003 and Year<2008 and Unit=='tokens'](https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003%20and%20Year<2008%20and%20Unit=='tokens')
+- Example Output:
+
+```json
+```
 
 ### /datasets/[index]
 
-Entry:
-[index] Must be an integer from 1 to the size of the dataset (Inclusive).
-Returns the entry with the specific index from the dataset.
+- Method: `GET`
+- Description: 
+- Path Arguments: 
+- Parameters: 
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/datasets/1?features=Name,Year
+- Example Output:
+
+```json
+```
 
 ### /datasets/tags
 
-### /refresh
+- Method: `GET`
+- Description: 
+- Path Arguments: N/A
+- Parameters: 
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/datasets/tags?features=Dialect,Year
+- Example Output:
 
-Entry: None
-This point refresh the dataset.
-Return: None
+```json
+```
+
+### /datasets/[index]/issues
+
+- Method: `POST`
+- Description: 
+- Path Arguments: 
+- Parameters: N/A
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/datasets/1/issues
+- Example Output:
+
+```json
+```
+
+### /refresh/[password]
+
+- Method: `GET`
+- Description: 
+- Path Arguments: 
+- Parameters: N/A
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/refresh/[password]
+- Example Output:
+
+```json
+```
