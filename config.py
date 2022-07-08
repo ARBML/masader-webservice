@@ -2,6 +2,10 @@ from os import environ
 
 
 class Config:
-    REDIS_URL = environ.get('REDIS_URL', 'redis://localhost:6379')
+    REDIS_URL        = environ.get('REDIS_URL', 'redis://localhost:6379')
 
-    HF_SECRET_KEY = environ.get('HF_SECRET_KEY')
+    HF_SECRET_KEY    = environ.get('HF_SECRET_KEY')
+
+    REFRESH_PASSWORD = environ.get('REFRESH_PASSWORD', "123456")
+
+    

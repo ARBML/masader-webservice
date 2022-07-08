@@ -7,10 +7,9 @@ import redis
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+from flask import current_app as app
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
-from constants import REFRESH_PASSWORD
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -66,14 +65,14 @@ def get_tags():
     return jsonify(dict_filter(tags, features))
 
 
-@app.route('/refresh/<int:password>')
-def refresh(password: int):
+@app.route('/refresh/<string:password>')
+def refresh(password: str):
     global db, masader, tags
 
     print('Refreshing globals...')
 
-    if password != REFRESH_PASSWORD:
-        return jsonify(f'Password is not true.'), 404
+    if password != app.config['REFRESH_PASSWORD']:
+        return jsonify(f'Password is incorrect.'), 403
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
@@ -84,4 +83,4 @@ def refresh(password: int):
 
 
 with app.app_context():
-    refresh(REFRESH_PASSWORD)
+    refresh(app.config['REFRESH_PASSWORD'])
