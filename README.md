@@ -50,75 +50,135 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 - Description: Returns the list of available features for the datasets.
 - Path Arguments: N/A
 - Parameters: N/A
+- Data: N/A
 - Return Type: `JSON`
 - Example Link: https://masader-web-service.herokuapp.com/datasets/schema
 - Example Output:
 
 ```json
-["Name", "Subsets", "HF Link", "Link", "License", "Year", ...]
+[
+    "Name",
+    "Subsets",
+    "HF Link",
+    ...
+]
 ```
 
 ### /datasets
 
 - Method: `GET`
-- Description: 
+- Description: Returns the list of available datasets based on the passed `query` and the requested `features`.
 - Path Arguments: N/A
-- Parameters: 
+- Parameters:
+  - `query` (Optional): Filtration query will be applied on the dataset before selecting the required features and returning the output (e.g. `query=Year>2003 and Year<2008 and Unit=='tokens'`). The query language should follow [Pandas](https://pandas.pydata.org) query language, for more information see [here](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html).
+  - `features` (Optional): The list of required features to be returned for each dataset (e.g. `features=Name,Year,Unit`).
+- Data: N/A
 - Return Type: `JSON`
 - Example Link: [https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003 and Year<2008 and Unit=='tokens'](https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003%20and%20Year<2008%20and%20Unit=='tokens')
 - Example Output:
 
 ```json
+[
+    {
+        "Name": "LC-STAR: Standard Arabic Phonetic lexicon",
+        "Unit": "tokens",
+        "Year": 2007
+    },
+    {
+        "Name": "NEMLAR: Written Corpus",
+        "Unit": "tokens",
+        "Year": 2006
+    },
+    {
+        "Name": "Arabic Treebank: Part 3",
+        "Unit": "tokens",
+        "Year": 2005
+    },
+    ...
+]
 ```
 
 ### /datasets/[index]
 
 - Method: `GET`
-- Description: 
-- Path Arguments: 
-- Parameters: 
+- Description: Returns specific dataset from the available datasets based on its `index`.
+- Path Arguments:
+  - `index`: The index of the required dataset. The `index` should be within range `[1, maximum number of datasets in Masader]`.
+- Parameters:
+  - `features` (Optional): The list of required features to be returned for each dataset (e.g. `features=Name,Year`).
+- Data: N/A
 - Return Type: `JSON`
 - Example Link: https://masader-web-service.herokuapp.com/datasets/1?features=Name,Year
 - Example Output:
 
 ```json
+{
+    "Name": "Shami",
+    "Year": 2018
+}
 ```
 
 ### /datasets/tags
 
 - Method: `GET`
-- Description: 
+- Description: Returns the unique values of the requested features.
 - Path Arguments: N/A
-- Parameters: 
+- Parameters:
+  - `features` (Optional): The list of required features to return their unique values (e.g. `features=Dialect,Year`).
+- Data: N/A
 - Return Type: `JSON`
 - Example Link: https://masader-web-service.herokuapp.com/datasets/tags?features=Dialect,Year
 - Example Output:
 
 ```json
+{
+    "Dialect": [
+        "Algeria",
+        "Bahrain",
+        "Classic",
+        ...
+    ],
+    "Year": [
+        2001,
+        2002,
+        2003,
+        ...
+    ]
+}
 ```
 
 ### /datasets/[index]/issues
 
 - Method: `POST`
-- Description: 
-- Path Arguments: 
+- Description: Creates a new GitHub issue related to the dataset that assoiated with `index`.
+- Path Arguments:
+  - `index`: The index of the required dataset. The `index` should be within range `[1, maximum number of datasets in Masader]`.
 - Parameters: N/A
+- Data:
+  - `title`: The issue's title. This will be prefixed with the dataset name.
+  - `body`: The issue's body.
 - Return Type: `JSON`
 - Example Link: https://masader-web-service.herokuapp.com/datasets/1/issues
 - Example Output:
 
 ```json
+{
+    "issue_url": "https://github.com/ARBML/masader/issues/64"
+}
 ```
 
 ### /refresh/[password]
 
 - Method: `GET`
-- Description: 
-- Path Arguments: 
+- Description: Refreshes the in-memory datasets and their tags, embeddings, and clusters.
+- Path Arguments:
+  - `password`: Simple string authentication to prevent anonymous actors from requesting this endpoint.
 - Parameters: N/A
+- Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/refresh/[password]
+- Example Link: https://masader-web-service.herokuapp.com/refresh/123456
 - Example Output:
 
 ```json
+"The datasets updated successfully! The current number of available datasets is 590."
 ```
