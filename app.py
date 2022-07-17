@@ -8,7 +8,6 @@ import redis
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask import current_app as app
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
 
@@ -115,4 +114,6 @@ def refresh(password: str):
 
 
 with app.app_context():
+    refresh(app.config['REFRESH_PASSWORD'])
+    refresh(app.config['REFRESH_PASSWORD'])
     refresh(app.config['REFRESH_PASSWORD'])
