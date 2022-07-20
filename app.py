@@ -1,7 +1,6 @@
 import json
 
 from multiprocessing import Process
-from typing import Dict, List, Optional, Union
 
 import pandas as pd
 import redis
@@ -22,20 +21,18 @@ CORS(app)
 
 
 db = redis.from_url(app.config['REDIS_URL'])
-masader: Optional[List[Dict[str, Union[str, int]]]] = None
-tags: Dict[str, List[Union[str, int]]] = None
 
 
 @app.route('/datasets/schema')
 def datasets_schema():
-    global masader
+    masader = json.loads(db.get('masader'))
 
     return jsonify(list(masader[0].keys()))
 
 
 @app.route('/datasets')
 def get_datasets():
-    global masader
+    masader = json.loads(db.get('masader'))
 
     page = request.args.get('page', default=1, type=int)
     size = request.args.get('size', default=len(masader), type=int)
@@ -60,7 +57,7 @@ def get_datasets():
 
 @app.route('/datasets/<int:index>')
 def get_dataset(index: int):
-    global masader
+    masader = json.loads(db.get('masader'))
 
     features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
@@ -72,7 +69,7 @@ def get_dataset(index: int):
 
 @app.route('/datasets/tags')
 def get_tags():
-    global tags
+    tags = json.loads(db.get('tags'))
 
     features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
@@ -83,6 +80,8 @@ def get_tags():
 
 @app.route('/datasets/<int:index>/issues', methods=['POST'])
 def create_dataset_issue(index: int):
+    masader = json.loads(db.get('masader'))
+
     if not (1 <= index <= len(masader)):
         return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
 
@@ -94,8 +93,6 @@ def create_dataset_issue(index: int):
 
 @app.route('/refresh/<string:password>')
 def refresh(password: str):
-    global db, masader, tags
-
     print('Refreshing globals...')
 
     if password != app.config['REFRESH_PASSWORD']:
@@ -103,17 +100,8 @@ def refresh(password: str):
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
-    if db.exists('masader') and db.exists('tags'):
-        masader = json.loads(db.get('masader'))
-        tags = json.loads(db.get('tags'))
-    else:
-        masader = []
-        tags = {}
-
-    return jsonify(f'The datasets updated successfully! The current number of available datasets is {len(masader)}.')
+    return jsonify('The datasets updated successfully!')
 
 
 with app.app_context():
-    refresh(app.config['REFRESH_PASSWORD'])
-    refresh(app.config['REFRESH_PASSWORD'])
     refresh(app.config['REFRESH_PASSWORD'])
