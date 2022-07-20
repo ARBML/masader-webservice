@@ -14,7 +14,6 @@ from utils.dataset_utils import refresh_masader_and_tags
 from utils.gh_utils import create_issue
 
 
-
 app = Flask(__name__)
 app.config.from_object('config.Config')
 CORS(app)
@@ -76,8 +75,6 @@ def get_tags():
     return jsonify(dict_filter(tags, features))
 
 
-
-
 @app.route('/datasets/<int:index>/issues', methods=['POST'])
 def create_dataset_issue(index: int):
     masader = json.loads(db.get('masader'))
@@ -96,7 +93,7 @@ def refresh(password: str):
     print('Refreshing globals...')
 
     if password != app.config['REFRESH_PASSWORD']:
-        return jsonify(f'Password is incorrect.'), 403
+        return jsonify('Password is incorrect.'), 403
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
