@@ -25,7 +25,14 @@ def refresh_masader_and_tags(db: Redis) -> None:
     embeddings = get_masader_embeddings(masader, db)
     clusters, reduced_embeddings = get_masader_clusters(embeddings)
 
-    for dataset, dataset_cluster, dataset_reduced_embeddings in zip(masader, clusters, reduced_embeddings):
+    for index, (dataset, dataset_cluster, dataset_reduced_embeddings) in enumerate(
+        zip(
+            masader,
+            clusters,
+            reduced_embeddings,
+        )
+    ):
+        dataset['Id'] = index + 1
         dataset['Cluster'] = dataset_cluster
         dataset['Embeddings'] = dataset_reduced_embeddings
 
