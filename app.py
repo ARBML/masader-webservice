@@ -1,4 +1,5 @@
 import json
+import os
 
 from multiprocessing import Process
 
@@ -7,10 +8,9 @@ import redis
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
 from utils.common_utils import dict_filter
 from utils.dataset_utils import refresh_masader_and_tags
-
-
 from utils.gh_utils import create_issue
 
 
@@ -88,6 +88,11 @@ def create_dataset_issue(index: int):
     return jsonify({'issue_url': create_issue(f"{masader[index]['Name']}: {title}", body)})
 
 
+@app.route('/highlights')
+def get_highlights():
+    return jsonify({'highlights': os.environ.get('HIGHLIGHTS', '')})
+
+
 @app.route('/refresh/<string:password>')
 def refresh(password: str):
     print('Refreshing globals...')
@@ -97,7 +102,7 @@ def refresh(password: str):
 
     Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
 
-    return jsonify('The datasets updated successfully!')
+    return jsonify('Datasets refresh process initiated successfully!')
 
 
 with app.app_context():

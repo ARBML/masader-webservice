@@ -167,6 +167,23 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 }
 ```
 
+### /highlights
+
+- Method: `GET`
+- Description: Returns short string highlights the new changes in Masader.
+- Path Arguments: N/A
+- Parameters: N/A
+- Data: N/A
+- Return Type: `JSON`
+- Example Link: https://masader-web-service.herokuapp.com/highlights
+- Example Output:
+
+```json
+{
+    "highlights": "Masader is COOL!"
+}
+```
+
 ### /refresh/[password]
 
 - Method: `GET`
@@ -180,5 +197,5 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 - Example Output:
 
 ```json
-"The datasets updated successfully! The current number of available datasets is 590."
+"Datasets refresh process initiated successfully!"
 ```
