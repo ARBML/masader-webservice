@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 from sklearn.cluster import KMeans
 from sklearn.manifold import TSNE
+import numpy as np
 
 
 def get_masader_clusters(embeddings: List[List[float]]) -> Tuple[List[int], List[List[float]]]:
@@ -18,6 +19,7 @@ def compute_clusters(embeddings: List[List[float]]) -> List[int]:
 
 def compute_reduced_embeddings(embeddings: List[List[float]]) -> List[List[float]]:
     tsne_model = TSNE(n_components=2, random_state=42)
+    embeddings = np.asarray(embeddings)
     tsne_data = tsne_model.fit_transform(embeddings)
 
     return (tsne_data - tsne_data.min()).tolist()
