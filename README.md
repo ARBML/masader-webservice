@@ -52,7 +52,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 - Parameters: N/A
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/datasets/schema
+- Example Link: https://arbml.github.io/masader-webservice/datasets/schema
 - Example Output:
 
 ```json
@@ -74,7 +74,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
   - `features` (Optional): The list of required features to be returned for each dataset (e.g. `features=Name,Year,Unit`).
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: [https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003 and Year<2008 and Unit=='tokens'](https://masader-web-service.herokuapp.com/datasets?features=Name,Year,Unit&query=Year>2003%20and%20Year<2008%20and%20Unit=='tokens')
+- Example Link: [https://arbml.github.io/masader-webservice/datasets?features=Name,Year,Unit&query=Year>2003 and Year<2008 and Unit=='tokens'](https://arbml.github.io/masader-webservice/datasets?features=Name,Year,Unit&query=Year>2003%20and%20Year<2008%20and%20Unit=='tokens')
 - Example Output:
 
 ```json
@@ -108,7 +108,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
   - `features` (Optional): The list of required features to be returned for each dataset (e.g. `features=Name,Year`).
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/datasets/1?features=Name,Year
+- Example Link: https://arbml.github.io/masader-webservice/datasets/1?features=Name,Year
 - Example Output:
 
 ```json
@@ -127,7 +127,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
   - `features` (Optional): The list of required features to return their unique values (e.g. `features=Dialect,Year`).
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/datasets/tags?features=Dialect,Year
+- Example Link: https://arbml.github.io/masader-webservice/datasets/tags?features=Dialect,Year
 - Example Output:
 
 ```json
@@ -158,7 +158,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
   - `title`: The issue's title. This will be prefixed with the dataset name.
   - `body`: The issue's body.
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/datasets/1/issues
+- Example Link: https://arbml.github.io/masader-webservice/datasets/1/issues
 - Example Output:
 
 ```json
@@ -175,7 +175,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 - Parameters: N/A
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/highlights
+- Example Link: https://arbml.github.io/masader-webservice/highlights
 - Example Output:
 
 ```json
@@ -193,7 +193,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 - Parameters: N/A
 - Data: N/A
 - Return Type: `JSON`
-- Example Link: https://masader-web-service.herokuapp.com/refresh/123456
+- Example Link: https://arbml.github.io/masader-webservice/refresh/123456
 - Example Output:
 
 ```json
