@@ -8,4 +8,4 @@ class Config:
 
     GH_SECRET_KEY = environ.get('GH_SECRET_KEY')
 
-    REFRESH_PASSWORD = environ.get('REFRESH_PASSWORD', '123456')
+    REFRESH_PASSWORD = environ.get('password')
