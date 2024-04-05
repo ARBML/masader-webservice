@@ -8,3 +8,4 @@ PyGithub==1.55
 redis==4.3.4
 requests==2.28.1
 sklearn==0.0
+numpy==1.21.6
