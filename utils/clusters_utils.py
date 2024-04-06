@@ -19,7 +19,10 @@ def compute_clusters(embeddings: List[List[float]]) -> List[int]:
 
 def compute_reduced_embeddings(embeddings: List[List[float]]) -> List[List[float]]:
     tsne_model = TSNE(n_components=2, random_state=42)
+    for emb in embeddings:
+        assert len(emb) == 384
     embeddings = np.asarray(embeddings, dtype=object)
+    print(embeddings.shape)
     tsne_data = tsne_model.fit_transform(embeddings)
 
     return (tsne_data - tsne_data.min()).tolist()
