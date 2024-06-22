@@ -1,4 +1,4 @@
-datasets
+datasets==2.3.2
 Flask==3.0.3
 flask_cors==3.0.10
 Werkzeug==3.0.2
