@@ -62,4 +62,4 @@ def compute_embeddings(texts: List[str], model_name: str) -> List[List[float]]:
 
 
 def build_dataset_prompt(dataset: Dict[str, Union[str, int]]) -> str:
-    return f"{dataset['Name']} {dataset['Description']} {dataset['Tasks']}"
+    return f"{dataset['Name']} {dataset['Description']} {dataset['Tasks']} {dataset['Abstract']}"
