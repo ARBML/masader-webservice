@@ -18,7 +18,7 @@ def refresh_masader_and_tags(db: Redis) -> None:
         download_mode=DownloadMode.FORCE_REDOWNLOAD,
         ignore_verifications=True,
     )['train']
-
+    print(masader)
     tags = get_features_tags(masader)
     masader = list(masader)
 
