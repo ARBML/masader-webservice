@@ -46,6 +46,8 @@ def get_datasets():
     masader_page = pd.DataFrame(masader_page)
 
     if query:
+        # TODO: Use fuzzy search here instead of exact match for the "Name" field
+        # difflib implements a simple algorithm for this
         masader_page = masader_page.query(query)
 
     if features:
