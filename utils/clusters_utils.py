@@ -28,6 +28,6 @@ def compute_reduced_embeddings(embeddings: List[List[float]]) -> List[List[float
             
     embeddings = np.asarray(new_embeddings, dtype=object)
     print(embeddings.shape)
-    tsne_data = tsne_model.fit_transform(new_embeddings)
+    tsne_data = tsne_model.fit_transform(embeddings)
 
     return (tsne_data - tsne_data.min()).tolist()
