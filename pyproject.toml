@@ -1,0 +1,20 @@
+[project]
+name = "masader-webservice"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets==3.6.0",
+    "flask==3.0.3",
+    "flask-cors==3.0.10",
+    "gunicorn==20.1.0",
+    "numpy==1.26.4",
+    "pandas==1.4.3",
+    "pygithub==1.55",
+    "redis==4.3.4",
+    "requests==2.32.2",
+    "scikit-learn==1.5.0",
+    "scipy==1.11.4",
+    "werkzeug==3.0.2",
+]

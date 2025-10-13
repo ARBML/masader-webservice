@@ -1,0 +1,9 @@
+[build]
+builder = "Nixpacks"
+
+[build.nixpacksPlan]
+packages = ["git"]
+
+[deploy]
+startCommand = "uv run flask run"
+restartPolicy = "on_failure"
