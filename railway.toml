@@ -6,5 +6,5 @@ NIXPACKS_PYTHON_VERSION=3.13
 packages = ["git"]
 
 [deploy]
-startCommand = "uv run flask run --host 0.0.0.0"
+startCommand = "uv run flask run --host 0.0.0.0 --port $PORT"
 restartPolicy = "on_failure"
