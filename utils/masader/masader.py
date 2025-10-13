@@ -1,25 +1,8 @@
-# coding=utf-8
-# Copyright 2020 The TensorFlow Datasets Authors and the HuggingFace Datasets Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-# Lint as: python3
-"""Arabic Poetry Metric dataset."""
-
-
-import os
 import datasets
-import pandas as pd
+from glob import glob 
+import json 
+import zipfile
+from random import shuffle
 
 _DESCRIPTION = """\
 Masader is the largest public catalogue for Arabic NLP datasets, which consists of more than 200 datasets annotated with 25 attributes. 
@@ -42,7 +25,6 @@ class MasaderConfig(datasets.BuilderConfig):
 
     def __init__(self, **kwargs):
         """BuilderConfig for MetRec.
-
         Args:
           **kwargs: keyword arguments forwarded to super.
         """
@@ -106,51 +88,29 @@ class Masader(datasets.GeneratorBasedBuilder):
             supervised_keys=None,
             homepage="https://github.com/arbml/Masader",
             citation=_CITATION,)
+	
+    def extract_all(self, dir):
+        zip_files = glob(dir+'/**/**.zip', recursive=True)
+        for file in zip_files:
+            with zipfile.ZipFile(file) as item:
+                item.extractall('/'.join(file.split('/')[:-1])) 
+
+
 
     def _split_generators(self, dl_manager):
-        sheet_id = "1YO-Vl4DO-lnp8sQpFlcX1cDtzxFoVkCmU1PVw_ZHJDg"
-        sheet_name = "filtered_clean"
-        url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/gviz/tq?tqx=out:csv&sheet={sheet_name}"
-        
-        return [
-            datasets.SplitGenerator(
-                name=datasets.Split.TRAIN, gen_kwargs={"url":url }
-            ),
-        ]
-
-    def _generate_examples(self, url):
-        """Generate examples."""
-        # For labeled examples, extract the label from the path.
-        
-                
-        df = pd.read_csv(url, usecols=range(35))
-        df.columns.values[0] = "No."
-        df.columns.values[1] = "Name"
-        subsets = {}
-        entry_list = []
-        i = 0
-        idx = 0
-         
-        while i < len(df.values):
-            
-            if i < len(df.values) - 1:
-              next_entry = df.values[i+1]
-            else:
-              next_entry = [] 
-
-            curr_entry = df.values[i]
-            
-            i+= 1
-            if str(curr_entry[0]) != "nan":
-                entry_list = curr_entry
-                subsets = []
-                
-            if len(next_entry) > 0 and str(next_entry[0]) == "nan":
-                subsets.append({'Name': next_entry[2], 'Dialect':next_entry[8], 'Volume':next_entry[13], 'Unit':next_entry[14]})
-                continue                
-            idx += 1
-            masader_entry = {col:entry_list[j+1] for j,col in enumerate(df.columns[1:]) if j != 1}
-            masader_entry['Year'] = int(entry_list[6])
-            
-            masader_entry['Subsets'] = subsets
-            yield idx, masader_entry
+        url = ['https://github.com/ARBML/masader/archive/masaderv2.zip']
+        downloaded_files = dl_manager.download_and_extract(url)
+        self.extract_all(downloaded_files[0])
+        all_files = sorted(glob(downloaded_files[0]+'/masader-masaderv2/datasets/**.json'))
+        shuffle(all_files)
+        return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{'inputs':all_files} })]
+    
+    def _generate_examples(self, filepaths):        
+        for idx,filepath in enumerate(filepaths['inputs']):
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                # cast list items to string
+                for key in data:
+                    if isinstance(data[key], list) and key != 'Subsets':
+                        data[key] = ','.join(data[key])
+            yield idx, data
