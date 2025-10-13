@@ -1,7 +1,7 @@
 import json
 import os
 
-from multiprocessing import Process
+from threading import Thread
 
 import pandas as pd
 import redis
@@ -100,7 +100,11 @@ def refresh(password: str):
     if password != app.config['REFRESH_PASSWORD']:
         return jsonify('Password is incorrect.'), 403
 
-    Process(name='refresh_globals', target=refresh_masader_and_tags, args=(db,)).start()
+    def refresh_with_context():
+        with app.app_context():
+            refresh_masader_and_tags(db)
+
+    Thread(name='refresh_globals', target=refresh_with_context).start()
 
     return jsonify('Datasets refresh process initiated successfully!')
 
