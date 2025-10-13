@@ -98,10 +98,11 @@ class Masader(datasets.GeneratorBasedBuilder):
 
 
     def _split_generators(self, dl_manager):
-        url = ['https://github.com/ARBML/masader/archive/masaderv2.zip']
+        branch = "main"
+        url = [f'https://github.com/ARBML/masader/archive/{branch}.zip']
         downloaded_files = dl_manager.download_and_extract(url)
         self.extract_all(downloaded_files[0])
-        all_files = sorted(glob(downloaded_files[0]+'/masader-masaderv2/datasets/**.json'))
+        all_files = sorted(glob(downloaded_files[0]+f'/masader-{branch}/datasets/**.json'))
         shuffle(all_files)
         return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{'inputs':all_files} })]
     
