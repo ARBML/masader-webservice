@@ -10,13 +10,15 @@ from constants import SUBSETS_FEATURES
 from utils.common_utils import identity, multi_map
 from utils.embeddings_utils import get_masader_embeddings
 from utils.clusters_utils import get_masader_clusters
+from datasets import VerificationMode
 
 
 def refresh_masader_and_tags(db: Redis) -> None:
     masader = load_dataset(
         'utils/masader',
         download_mode=DownloadMode.FORCE_REDOWNLOAD,
-        trust_remote_code=True
+        trust_remote_code=True,
+        verification_mode=VerificationMode.NO_CHECKS,
     )['train']
     print(masader)
     tags = get_features_tags(masader)
