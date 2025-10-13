@@ -14,9 +14,9 @@ from utils.clusters_utils import get_masader_clusters
 
 def refresh_masader_and_tags(db: Redis) -> None:
     masader = load_dataset(
-        'arbml/masader',
+        'utils/masader',
         download_mode=DownloadMode.FORCE_REDOWNLOAD,
-        ignore_verifications=True,
+        trust_remote_code=True
     )['train']
     print(masader)
     tags = get_features_tags(masader)
