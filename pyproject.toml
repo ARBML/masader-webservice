@@ -12,6 +12,7 @@ dependencies = [
     "numpy==1.26.4",
     "pandas==1.4.3",
     "pygithub==1.55",
+    "rank-bm25==0.2.2",
     "redis==4.3.4",
     "requests==2.32.2",
     "scikit-learn==1.5.0",
