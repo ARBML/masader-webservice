@@ -3,7 +3,6 @@ from glob import glob
 import json
 import os
 import zipfile
-from random import shuffle
 
 _DESCRIPTION = """\
 Masader is the largest public catalogue for Arabic NLP datasets, which consists of more than 200 datasets annotated with 25 attributes. 
@@ -48,6 +47,7 @@ class Masader(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     'Name': datasets.Value("string"),
+                    'File': datasets.Value("string"),
                     'Dialect Subsets': [{'Name':datasets.Value("string"),
                                  'Dialect':datasets.Value("string") ,
                                  'Volume':datasets.Value("string") ,
@@ -110,13 +110,13 @@ class Masader(datasets.GeneratorBasedBuilder):
         downloaded_files = dl_manager.download_and_extract(url)
         self.extract_all(downloaded_files[0])
         all_files = sorted(glob(downloaded_files[0]+f'/masader-{branch}/datasets/**.json'))
-        shuffle(all_files)
         return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths':{'inputs':all_files} })]
-    
-    def _generate_examples(self, filepaths):        
+
+    def _generate_examples(self, filepaths):
         for idx,filepath in enumerate(filepaths['inputs']):
             with open(filepath, 'r') as f:
                 data = json.load(f)
+                data['File'] = os.path.splitext(os.path.basename(filepath))[0]
                 # cast list items to string
                 for key in data:
                     if isinstance(data[key], list) and key != 'Dialect Subsets':

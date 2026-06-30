@@ -12,6 +12,7 @@ from constants import (
     CHAT_FOLLOWUP_SYSTEM_PROMPT,
     CHAT_SOURCES_MARKER,
     CHAT_SYSTEM_PROMPT,
+    MASADER_KEY,
 )
 from utils.common_utils import as_text
 from utils.token_usage import TokenUsage, record_usage
@@ -42,6 +43,7 @@ def _load_fallback_records() -> List[Dict[str, Any]]:
         )['train']
 
         records = list(masader)
+        records.sort(key=lambda r: r.get('File', ''))
         for index, record in enumerate(records):
             record['Id'] = index + 1
 
@@ -53,7 +55,7 @@ def _load_fallback_records() -> List[Dict[str, Any]]:
 def get_masader_records(db: 'redis.Redis') -> Optional[List[Dict[str, Any]]]:
     """Return the catalogue from Redis, falling back to the HF source."""
     try:
-        raw_masader = db.get('masader')
+        raw_masader = db.get(MASADER_KEY)
     except redis.exceptions.RedisError:
         logger.warning('Redis unavailable; trying fallback catalogue')
         raw_masader = None

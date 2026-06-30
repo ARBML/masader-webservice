@@ -1,5 +1,12 @@
 SUBSETS_FEATURES = ['Dialect', 'Volume', 'Unit']
 
+MASADER_KEY = 'masader'
+MASADER_TAGS_KEY = 'tags'
+MASADER_ID_MAP_KEY = 'masader_id_map'
+
+# Internal identity field exposed by the builder; excluded from the tag vocabulary.
+FILE_FEATURE = 'File'
+
 HF_REQUEST_BATCH_SIZE = 200
 
 HF_API_URL = 'https://api-inference.huggingface.co'

@@ -5,7 +5,7 @@ from typing import Dict, List, Set, Union
 from redis import Redis
 from datasets import Dataset, DownloadMode, load_dataset
 
-from constants import SUBSETS_FEATURES
+from constants import FILE_FEATURE, MASADER_ID_MAP_KEY, MASADER_KEY, MASADER_TAGS_KEY, SUBSETS_FEATURES
 
 from utils.common_utils import identity, multi_map
 from utils.embeddings_utils import get_masader_embeddings
@@ -27,25 +27,55 @@ def refresh_masader_and_tags(db: Redis) -> None:
     embeddings = get_masader_embeddings(masader, db)
     clusters, reduced_embeddings = get_masader_clusters(embeddings)
 
-    for index, (dataset, dataset_cluster, dataset_reduced_embeddings) in enumerate(
-        zip(
-            masader,
-            clusters,
-            reduced_embeddings,
-        )
+    _assign_persistent_ids(db, masader)
+
+    for dataset, dataset_cluster, dataset_reduced_embeddings in zip(
+        masader,
+        clusters,
+        reduced_embeddings,
     ):
-        dataset['Id'] = index + 1
         dataset['Cluster'] = dataset_cluster
         dataset['Embeddings'] = dataset_reduced_embeddings
 
-    db.set('masader', json.dumps(masader))
-    db.set('tags', json.dumps(tags))
+    masader.sort(key=lambda d: d['Id'])
+
+    db.set(MASADER_KEY, json.dumps(masader))
+    db.set(MASADER_TAGS_KEY, json.dumps(tags))
+
+
+def _assign_persistent_ids(db: Redis, masader: List[Dict]) -> None:
+    """Assign stable integer IDs keyed by the dataset's source filename.
+
+    The mapping ({filename: int_id}) is persisted in Redis so a dataset keeps
+    its ID across refreshes even as new datasets are added or others removed.
+    Removed datasets leave gaps (their IDs are retired, never reused).
+    """
+    id_map: Dict[str, int] = json.loads(db.get(MASADER_ID_MAP_KEY) or '{}')
+    next_id = max(id_map.values(), default=0) + 1
+
+    masader.sort(key=lambda d: d.get(FILE_FEATURE, ''))
+
+    for dataset in masader:
+        key = dataset.get(FILE_FEATURE)
+        if not key:
+            continue
+
+        if key in id_map:
+            dataset['Id'] = id_map[key]
+        else:
+            dataset['Id'] = next_id
+            id_map[key] = next_id
+            next_id += 1
+
+    db.set(MASADER_ID_MAP_KEY, json.dumps(id_map))
 
 
 def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:
     tags: Dict[str, Union[Set[str], List[Union[str, int]]]] = dict()
 
     for feature in masader.features:
+        if feature == FILE_FEATURE:
+            continue
         if feature == 'Dialect Subsets':
             tags = process_subsets_feature(tags, masader['Dialect Subsets'])
         elif feature == 'Dialect':

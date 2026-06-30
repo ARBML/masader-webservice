@@ -11,7 +11,7 @@ import redis
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 
-from constants import CHAT_TOP_K
+from constants import CHAT_TOP_K, MASADER_KEY, MASADER_TAGS_KEY
 from utils.chat_utils import (
     build_retrieval_query,
     datasets_cited_in_history,
@@ -42,6 +42,16 @@ def _sse(payload):
     return f'data: {json.dumps(payload)}\n\n'
 
 
+def _load_masader():
+    """Load the catalogue from Redis (sorted by persistent Id)."""
+    return json.loads(db.get(MASADER_KEY))
+
+
+def _find_dataset_by_id(masader, dataset_id: int):
+    """Look up a record by its persistent Id (instead of positional index)."""
+    return next((d for d in masader if d.get('Id') == dataset_id), None)
+
+
 app = Flask(__name__)
 app.config.from_object('config.Config')
 CORS(app)
@@ -70,14 +80,14 @@ router = get_router(
 
 @app.route('/datasets/schema')
 def datasets_schema():
-    masader = json.loads(db.get('masader'))
+    masader = _load_masader()
 
     return jsonify(list(masader[0].keys()))
 
 
 @app.route('/datasets')
 def get_datasets():
-    masader = json.loads(db.get('masader'))
+    masader = _load_masader()
 
     page = request.args.get('page', default=1, type=int)
     size = request.args.get('size', default=len(masader), type=int)
@@ -102,19 +112,20 @@ def get_datasets():
 
 @app.route('/datasets/<int:index>')
 def get_dataset(index: int):
-    masader = json.loads(db.get('masader'))
+    masader = _load_masader()
 
     features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
-    if not (1 <= index <= len(masader)):
-        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
+    dataset = _find_dataset_by_id(masader, index)
+    if dataset is None:
+        return jsonify(f'Dataset id {index} not found.'), 404
 
-    return jsonify(dict_filter(masader[index - 1], features))
+    return jsonify(dict_filter(dataset, features))
 
 
 @app.route('/datasets/tags')
 def get_tags():
-    tags = json.loads(db.get('tags'))
+    tags = json.loads(db.get(MASADER_TAGS_KEY))
 
     features = list(filter(None, request.args.get('features', default='', type=str).split(',')))
 
@@ -123,15 +134,16 @@ def get_tags():
 
 @app.route('/datasets/<int:index>/issues', methods=['POST'])
 def create_dataset_issue(index: int):
-    masader = json.loads(db.get('masader'))
+    masader = _load_masader()
 
-    if not (1 <= index <= len(masader)):
-        return jsonify(f'Dataset index is out of range, the index should be between 1 and {len(masader)}.'), 404
+    dataset = _find_dataset_by_id(masader, index)
+    if dataset is None:
+        return jsonify(f'Dataset id {index} not found.'), 404
 
     title = request.get_json().get('title', '')
     body = request.get_json().get('body', '')
 
-    return jsonify({'issue_url': create_issue(f"{masader[index]['Name']}: {title}", body)})
+    return jsonify({'issue_url': create_issue(f"{dataset['Name']}: {title}", body)})
 
 
 @app.route('/chat', methods=['POST'])
