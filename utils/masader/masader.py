@@ -1,6 +1,7 @@
 import datasets
-from glob import glob 
-import json 
+from glob import glob
+import json
+import os
 import zipfile
 from random import shuffle
 
@@ -47,9 +48,9 @@ class Masader(datasets.GeneratorBasedBuilder):
             features=datasets.Features(
                 {
                     'Name': datasets.Value("string"),
-                    'Subsets': [{'Name':datasets.Value("string"), 
-                                 'Dialect':datasets.Value("string") , 
-                                 'Volume':datasets.Value("string") , 
+                    'Dialect Subsets': [{'Name':datasets.Value("string"),
+                                 'Dialect':datasets.Value("string") ,
+                                 'Volume':datasets.Value("string") ,
                                  'Unit':datasets.Value("string")}],
                     'HF Link': datasets.Value("string"),
                     'Link': datasets.Value("string"),
@@ -57,9 +58,10 @@ class Masader(datasets.GeneratorBasedBuilder):
                     'Year': datasets.Value("int32"),
                     'Language': datasets.Value("string"),
                     'Dialect': datasets.Value("string"),
+                    'Source': datasets.Value("string"),
                     'Domain': datasets.Value("string"),
                     'Form': datasets.Value("string"),
-                    'Collection Style': datasets.Value("string"),
+                    'Annotation Style': datasets.Value("string"),
                     'Description': datasets.Value("string"),
                     'Volume': datasets.Value("string"),
                     'Unit': datasets.Value("string"),
@@ -73,16 +75,16 @@ class Masader(datasets.GeneratorBasedBuilder):
                     'Host': datasets.Value("string"),
                     'Access': datasets.Value("string"),
                     'Cost': datasets.Value("string"),
-                    'Test Split': datasets.Value("string"),
+                    'Has Splits': datasets.Value("string"),
+                    'Partial': datasets.Value("string"),
                     'Tasks': datasets.Value("string"),
                     'Venue Title': datasets.Value("string"),
-                    'Citations': datasets.Value("string"),
                     'Venue Type': datasets.Value("string"),
                     'Venue Name': datasets.Value("string"),
                     'Authors': datasets.Value("string"),
                     'Affiliations': datasets.Value("string"),
                     'Abstract': datasets.Value("string"),
-                    'Added By': datasets.Value("string"), 
+                    'Added By': datasets.Value("string"),
                 }
             ),
             supervised_keys=None,
@@ -98,6 +100,11 @@ class Masader(datasets.GeneratorBasedBuilder):
 
 
     def _split_generators(self, dl_manager):
+        local_dir = os.environ.get('MASADER_LOCAL_DIR')
+        if local_dir:
+            all_files = sorted(glob(os.path.join(local_dir, '**.json')))
+            return [datasets.SplitGenerator(name=datasets.Split.TRAIN, gen_kwargs={'filepaths': {'inputs': all_files}})]
+
         branch = "main"
         url = [f'https://github.com/ARBML/masader/archive/{branch}.zip']
         downloaded_files = dl_manager.download_and_extract(url)
@@ -112,6 +119,6 @@ class Masader(datasets.GeneratorBasedBuilder):
                 data = json.load(f)
                 # cast list items to string
                 for key in data:
-                    if isinstance(data[key], list) and key != 'Subsets':
+                    if isinstance(data[key], list) and key != 'Dialect Subsets':
                         data[key] = ','.join(data[key])
             yield idx, data

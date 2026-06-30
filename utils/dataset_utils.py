@@ -46,16 +46,18 @@ def get_features_tags(masader: Dataset) -> Dict[str, List[Union[str, int]]]:
     tags: Dict[str, Union[Set[str], List[Union[str, int]]]] = dict()
 
     for feature in masader.features:
-        if feature == 'Subsets':
-            tags = process_subsets_feature(tags, masader['Subsets'])
+        if feature == 'Dialect Subsets':
+            tags = process_subsets_feature(tags, masader['Dialect Subsets'])
         elif feature == 'Dialect':
             tags = process_dialect_feature(tags, masader['Dialect'])
         elif feature == 'Tasks':
             tags = process_tasks_feature(tags, masader['Tasks'])
         else:
-            tags[feature] = sorted(set(masader[feature]))
+            tags[feature] = sorted(v for v in set(masader[feature]) if v is not None)
 
-    tags['Dialect'] = sorted(set(tags['Dialect'] + tags['Subsets:Dialect']))
+    tags['Dialect'] = sorted(
+        v for v in set(tags['Dialect'] + tags['Subsets:Dialect']) if v is not None
+    )
 
     for feature in tags:
         try:
@@ -113,6 +115,8 @@ def process_dialect_feature(
     tags['Dialect'] = set()
 
     for dialects in dialect_feature:
+        if not isinstance(dialects, str):
+            continue
         tags['Dialect'].update(
             list(
                 multi_map(
@@ -135,6 +139,8 @@ def process_tasks_feature(
     tags['Tasks'] = set()
 
     for tasks in tasks_feature:
+        if not isinstance(tasks, str):
+            continue
         tags['Tasks'].update(
             list(
                 filter(

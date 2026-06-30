@@ -58,7 +58,7 @@ Make sure to apply `pre-commit` hooks before submitting any pull request by runn
 ```json
 [
     "Name",
-    "Subsets",
+    "Dialect Subsets",
     "HF Link",
     ...
 ]

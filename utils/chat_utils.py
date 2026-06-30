@@ -200,7 +200,7 @@ def _context_block(datasets: List[Dict[str, Any]]) -> str:
             if key in _CONTEXT_EXCLUDE:
                 continue
 
-            if key == 'Subsets':
+            if key == 'Dialect Subsets':
                 formatted = _format_subsets(value)
                 if formatted:
                     attributes.append(('subsets', formatted))
