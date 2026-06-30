@@ -11,8 +11,8 @@ class Config:
     REFRESH_PASSWORD = environ.get('password')
 
     API_KEY = environ.get('API_KEY')
-    API_URL = environ.get('API_URL', 'https://openrouter.ai/api/v1/chat/completions')
-    MODEL_NAME = environ.get('MODEL_NAME', 'google/gemini-2.5-flash-lite')
+    API_URL = environ.get('API_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions')
+    MODEL_NAME = environ.get('MODEL_NAME', 'gemini-2.5-flash-lite')
 
     # Which Retriever the chat endpoint uses. See utils.retrieval.get_retriever
     # for the available algorithms (bm25, sql).

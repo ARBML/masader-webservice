@@ -17,7 +17,7 @@ from typing import Dict, List, Optional, Type
 
 import requests
 
-from constants import CHAT_SITE_NAME, CHAT_SITE_URL, ROUTER_SYSTEM_PROMPT
+from constants import ROUTER_SYSTEM_PROMPT
 from utils.token_usage import TokenUsage, record_usage
 
 
@@ -93,8 +93,6 @@ class LLMRetrievalRouter(RetrievalRouter):
         headers = {
             'Authorization': f'Bearer {self._api_key}',
             'Content-Type': 'application/json',
-            'HTTP-Referer': CHAT_SITE_URL,
-            'X-Title': CHAT_SITE_NAME,
         }
         payload = {
             'model': self._model_name,
@@ -105,8 +103,6 @@ class LLMRetrievalRouter(RetrievalRouter):
             'stream': False,
             'temperature': 0,
             'max_tokens': 8,
-            # Disable "thinking" so the reply is just the classification word.
-            'chat_template_kwargs': {'enable_thinking': False},
         }
 
         logger.info('classifying turn (NEW vs FOLLOWUP) via %s', self._model_name)

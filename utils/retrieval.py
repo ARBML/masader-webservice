@@ -22,8 +22,6 @@ from rank_bm25 import BM25Okapi
 
 from constants import (
     CATALOGUE_QUERY_RESULT_NAME,
-    CHAT_SITE_NAME,
-    CHAT_SITE_URL,
     CHAT_TOP_K,
     MASADER_SCHEMA_URL,
     SYSTEM_SQL_PROMPT,
@@ -406,8 +404,6 @@ class SQLRetriever(Retriever):
         headers = {
             'Authorization': f'Bearer {self._api_key}',
             'Content-Type': 'application/json',
-            'HTTP-Referer': CHAT_SITE_URL,
-            'X-Title': CHAT_SITE_NAME,
         }
         payload = {
             'model': self._model_name,
@@ -417,7 +413,6 @@ class SQLRetriever(Retriever):
             ],
             'stream': False,
             'temperature': 0,
-            'chat_template_kwargs': {'enable_thinking': False},
         }
 
         logger.info('generating SQL via %s', self._model_name)

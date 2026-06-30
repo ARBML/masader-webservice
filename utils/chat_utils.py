@@ -10,8 +10,6 @@ import requests
 from constants import (
     CATALOGUE_QUERY_RESULT_NAME,
     CHAT_FOLLOWUP_SYSTEM_PROMPT,
-    CHAT_SITE_NAME,
-    CHAT_SITE_URL,
     CHAT_SOURCES_MARKER,
     CHAT_SYSTEM_PROMPT,
 )
@@ -456,18 +454,14 @@ def stream_chat(
     headers = {
         'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json',
-        'HTTP-Referer': CHAT_SITE_URL,
-        'X-Title': CHAT_SITE_NAME,
     }
     payload = {
         'model': model_name,
         'messages': build_llm_messages(messages, datasets, cite_sources=cite_sources),
         'stream': True,
-        # Ask OpenAI-compatible servers (vLLM, OpenRouter, ...) to emit usage
+        # Ask OpenAI-compatible servers (vLLM, AI Studio, ...) to emit usage
         # in the final stream chunk(s).
         'stream_options': {'include_usage': True},
-        # Disable "thinking" / reasoning output (Qwen3 & compatible servers).
-        'chat_template_kwargs': {'enable_thinking': False},
     }
 
     try:
